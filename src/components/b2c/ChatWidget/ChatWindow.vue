@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import MessageList from './MessageList.vue';
 import ChatInput from './ChatInput.vue';
@@ -67,7 +67,7 @@ export default {
     }
   },
   emits: ['close'],
-  setup() {
+  setup(props) {
     const store = useStore();
     const showAuthModal = ref(false);
 
@@ -76,8 +76,23 @@ export default {
     const isAuthenticated = computed(() => store.state.b2c.isAuthenticated);
     const customerName = computed(() => store.getters['b2c/customerName']);
 
-    // Initialize session on mount
-    store.dispatch('b2c/initSession');
+    // Initialize session and load chat history
+    const initializeChatSession = async () => {
+      await store.dispatch('b2c/initSession');
+      await store.dispatch('b2c/loadChatHistory');
+    };
+
+    // Load chat history when component mounts
+    onMounted(() => {
+      initializeChatSession();
+    });
+
+    // Reload chat history when authentication status changes
+    watch(isAuthenticated, async (newVal, oldVal) => {
+      if (newVal !== oldVal) {
+        await store.dispatch('b2c/loadChatHistory');
+      }
+    });
 
     const handleSend = async (message) => {
       try {
@@ -89,10 +104,14 @@ export default {
 
     const handleLogout = () => {
       store.dispatch('b2c/logout');
+      // Clear messages and reload empty history
+      store.dispatch('b2c/loadChatHistory');
     };
 
-    const handleAuthSuccess = () => {
+    const handleAuthSuccess = async () => {
       console.log('Authentication successful');
+      // Reload chat history after successful login
+      await store.dispatch('b2c/loadChatHistory');
     };
 
     return {

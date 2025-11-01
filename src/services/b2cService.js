@@ -34,6 +34,23 @@ export default {
     });
   },
 
+  // Get chat history by session
+  getChatHistoryBySession(sessionId, limit = 50) {
+    return apiClient.get(`/b2c/chat-history/session/${sessionId}`, {
+      params: { limit }
+    });
+  },
+
+  // Get chat history by customer (requires auth token)
+  getChatHistoryByCustomer(customerId, token, limit = 100) {
+    return apiClient.get(`/b2c/chat-history/customer/${customerId}`, {
+      params: { limit },
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  },
+
   // Get all products
   getAllProducts(params = {}) {
     return apiClient.get('/b2c/products', { params });

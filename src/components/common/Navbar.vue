@@ -3,7 +3,7 @@
     <div class="navbar-container">
       <div class="navbar-brand">
         <router-link to="/">
-          <h1>FashionAI</h1>
+          <h1>ALTURA</h1>
         </router-link>
       </div>
 

@@ -4,14 +4,14 @@
     <section class="hero-section">
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <h1 class="hero-title">FashionAI Store</h1>
+        <h1 class="hero-title">Shop của Creator Bugs</h1>
         <p class="hero-subtitle">
           Khám phá bộ sưu tập thời trang độc đáo được tuyển chọn bởi AI
         </p>
         <p class="hero-description">
           Chúng tôi mang đến trải nghiệm mua sắm thông minh với công nghệ AI,
-          giúp bạn tìm thấy những sản phẩm phù hợp nhất với phong cách của mình.
-        </p>
+          giúp bạn tìm thấy những sản phẩm phù hợp nhất với phong cách của mình.saw21
+        </p>81789
         <button class="cta-button" @click="scrollToProducts">
           Khám phá ngay
           <span class="cta-arrow">↓</span>

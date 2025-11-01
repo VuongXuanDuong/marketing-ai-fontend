@@ -25,6 +25,9 @@ export default {
     ADD_MESSAGE(state, message) {
       state.messages.push(message);
     },
+    SET_MESSAGES(state, messages) {
+      state.messages = messages;
+    },
     SET_LOADING(state, loading) {
       state.loading = loading;
     },
@@ -60,6 +63,51 @@ export default {
   actions: {
     initSession({ commit }) {
       commit('INIT_SESSION');
+    },
+
+    async loadChatHistory({ commit, state, getters }) {
+      try {
+        commit('SET_LOADING', true);
+
+        // If customer is logged in, load all their history
+        if (state.isAuthenticated && getters.customerId) {
+          const response = await b2cService.getChatHistoryByCustomer(
+            getters.customerId,
+            state.authToken
+          );
+
+          // Transform backend messages to frontend format
+          const messages = response.data.messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            products: [], // Products not stored in history, only metadata
+            timestamp: new Date(msg.created_at),
+            isError: false
+          }));
+
+          commit('SET_MESSAGES', messages);
+        } else {
+          // Load history by current session only
+          const response = await b2cService.getChatHistoryBySession(state.sessionId);
+
+          // Transform backend messages to frontend format
+          const messages = response.data.messages.map(msg => ({
+            role: msg.role,
+            content: msg.content,
+            products: [], // Products not stored in history, only metadata
+            timestamp: new Date(msg.created_at),
+            isError: false
+          }));
+
+          commit('SET_MESSAGES', messages);
+        }
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+        // Don't show error to user, just start with empty chat
+        commit('SET_MESSAGES', []);
+      } finally {
+        commit('SET_LOADING', false);
+      }
     },
 
     async login({ commit }, { email, password }) {
