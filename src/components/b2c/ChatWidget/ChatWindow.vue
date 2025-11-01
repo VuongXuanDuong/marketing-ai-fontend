@@ -1,8 +1,34 @@
 <template>
   <div class="chat-window" :class="{ 'is-open': isOpen }">
     <div class="chat-header">
-      <h3>FashionAI Assistant</h3>
-      <button @click="$emit('close')" class="close-btn">✕</button>
+      <div class="header-left">
+        <h3>FashionAI Assistant</h3>
+        <div class="customer-info">
+          <span v-if="isAuthenticated" class="customer-name">
+            {{ customerName }}
+          </span>
+          <span v-else class="guest-label">Guest</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button
+          v-if="isAuthenticated"
+          @click="handleLogout"
+          class="auth-btn"
+          title="Đăng xuất"
+        >
+          Đăng xuất
+        </button>
+        <button
+          v-else
+          @click="showAuthModal = true"
+          class="auth-btn"
+          title="Đăng nhập"
+        >
+          Đăng nhập
+        </button>
+        <button @click="$emit('close')" class="close-btn">✕</button>
+      </div>
     </div>
 
     <MessageList :messages="messages" />
@@ -11,20 +37,28 @@
       @send="handleSend"
       :disabled="loading"
     />
+
+    <CustomerAuth
+      v-if="showAuthModal"
+      @close="showAuthModal = false"
+      @success="handleAuthSuccess"
+    />
   </div>
 </template>
 
 <script>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import MessageList from './MessageList.vue';
 import ChatInput from './ChatInput.vue';
+import CustomerAuth from '../CustomerAuth.vue';
 
 export default {
   name: 'ChatWindow',
   components: {
     MessageList,
-    ChatInput
+    ChatInput,
+    CustomerAuth
   },
   props: {
     isOpen: {
@@ -35,9 +69,12 @@ export default {
   emits: ['close'],
   setup() {
     const store = useStore();
+    const showAuthModal = ref(false);
 
     const messages = computed(() => store.state.b2c.messages);
     const loading = computed(() => store.state.b2c.loading);
+    const isAuthenticated = computed(() => store.state.b2c.isAuthenticated);
+    const customerName = computed(() => store.getters['b2c/customerName']);
 
     // Initialize session on mount
     store.dispatch('b2c/initSession');
@@ -50,10 +87,23 @@ export default {
       }
     };
 
+    const handleLogout = () => {
+      store.dispatch('b2c/logout');
+    };
+
+    const handleAuthSuccess = () => {
+      console.log('Authentication successful');
+    };
+
     return {
       messages,
       loading,
-      handleSend
+      isAuthenticated,
+      customerName,
+      showAuthModal,
+      handleSend,
+      handleLogout,
+      handleAuthSuccess
     };
   }
 };
@@ -90,9 +140,49 @@ export default {
   align-items: center;
 }
 
+.header-left {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .chat-header h3 {
   margin: 0;
   font-size: 1.1rem;
+}
+
+.customer-info {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.customer-name {
+  font-weight: 500;
+}
+
+.guest-label {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.auth-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.auth-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .close-btn {
