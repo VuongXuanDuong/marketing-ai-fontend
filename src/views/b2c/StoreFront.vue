@@ -11,7 +11,7 @@
         <p class="hero-description">
           Chúng tôi mang đến trải nghiệm mua sắm thông minh với công nghệ AI,
           giúp bạn tìm thấy những sản phẩm phù hợp nhất với phong cách của mình.saw21
-        </p>81789
+        </p>
         <button class="cta-button" @click="scrollToProducts">
           Khám phá ngay
           <span class="cta-arrow">↓</span>
